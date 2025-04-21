@@ -72,6 +72,9 @@ type Reader struct {
 
 	// skipBatchAccumulation is a flag to skip .AddBatch
 	skipBatchAccumulation bool
+
+	// whether to exclude Go error types from formatted errors
+	suppressParseErrorType bool
 }
 
 // error returns a new ParseError based on err
@@ -86,6 +89,7 @@ func (r *Reader) parseError(err error) error {
 		Line:   r.lineNum,
 		Record: r.recordName,
 		Err:    err,
+		SuppressType: r.suppressParseErrorType,
 	}
 }
 
@@ -165,6 +169,11 @@ func NewReaderWithContentType(r io.Reader, contentType string) *Reader {
 // NewReader returns a new ACH Reader that reads from r.
 func NewReader(r io.Reader) *Reader {
 	return NewReaderWithContentType(r, "text/plain")
+}
+
+// Suppress internal Go types from error messages
+func (r *Reader) EnableUserFriendlyErrors() {
+	r.suppressParseErrorType = true
 }
 
 func (r *Reader) SetMaxLines(max int) {
